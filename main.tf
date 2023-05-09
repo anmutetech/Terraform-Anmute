@@ -110,14 +110,6 @@ resource "aws_instance" "web" {
   subnet_id              = aws_subnet.public_subnet.id
   security_groups = [aws_security_group.sg.id]
 
-  user_data = <<-EOF
-  #!/bin/bash
-  echo "*** Installing apache2"
-  sudo apt update -y
-  sudo apt install apache2 -y
-  echo "*** Completed Installing apache2"
-  EOF
-
   tags = {
     Name = "web_instance"
   }
