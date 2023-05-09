@@ -74,6 +74,33 @@ resource "aws_route_table_association" "public_rt_asso" {
   route_table_id = aws_route_table.public_rt.id
 }
 
+##Create Key Pair
+resource "tls_private_key" "key_type" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "generated_key" {
+  key_name   = var.instance_key
+  public_key = tls_private_key.key_type.public_key_openssh
+}
+
+resource "local_file" "private_key" {
+  depends_on = [
+    aws_key_pair.generated_key
+    ]
+  content  = tls_private_key.key_type.private_key_pem
+  filename = "anmute-devops.pem"
+}
+
+resource "local_file" "private_key" {
+  depends_on = [
+    aws_key_pair.generated_key
+    ]
+  content  = tls_private_key.key_type.public_key_pem
+  filename = "anmute-devops-public.pem"
+}
+##Create EC2 Instance
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu.id 
   instance_type = var.instance_type
