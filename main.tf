@@ -117,4 +117,18 @@ resource "aws_instance" "web" {
   volume_tags = {
     Name = "web_instance"
   } 
+  connection {
+   host     = self.public_ip
+   type     = "ssh"
+   user     = "ubuntu"
+   private_key = tls_private_key.key_type.private_key_pem
+  }
+
+ provisioner "remote-exec" {
+    inline = [
+      "sudo apt-add-repository ppa:ansible/ansible",
+      "sudo apt update -y",
+      "sudo apt install ansible -y"
+    ]
+  }
 }
