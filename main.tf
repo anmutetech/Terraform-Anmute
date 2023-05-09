@@ -91,6 +91,7 @@ resource "local_file" "private_key" {
     ]
   content  = tls_private_key.key_type.private_key_pem
   filename = "anmute-devops.pem"
+  file_permission = 0400
 }
 
 resource "local_file" "private_key" {
@@ -99,6 +100,7 @@ resource "local_file" "private_key" {
     ]
   content  = tls_private_key.key_type.public_key_pem
   filename = "anmute-devops-public.pem"
+  file_permission = 0400
 }
 ##Create EC2 Instance
 resource "aws_instance" "web" {
