@@ -109,7 +109,16 @@ resource "aws_instance" "web" {
   key_name = var.instance_key
   subnet_id              = aws_subnet.public_subnet.id
   security_groups = [aws_security_group.sg.id]
-
+  
+  user_data = <<-EOF
+  #!/bin/bash
+  echo "*** Installing ansible"
+  sudo apt update -y
+  sudo apt install software-properties-common
+  sudo add-apt-repository --yes --update ppa:ansible/ansible
+  sudo apt install ansible
+  EOF
+  
   tags = {
     Name = "web_instance"
   }
@@ -117,18 +126,21 @@ resource "aws_instance" "web" {
   volume_tags = {
     Name = "web_instance"
   } 
-  connection {
+  
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Wait until SSH is ready'"]
+
+   connection {
    host     = self.public_ip
    type     = "ssh"
    user     = "ubuntu"
    private_key = tls_private_key.key_type.private_key_pem
+    }
   }
 
- provisioner "remote-exec" {
-    inline = [
-      "sudo apt-add-repository ppa:ansible/ansible",
-      "sudo apt update -y",
-      "sudo apt install ansible -y"
-    ]
+  provisioner "local-exec" {
+    command = "ansible-playbook  -i ${aws_instance.web.public_ip}, --private-key ${tls_private_key.key_type.private_key_pem} nginx.yaml"
   }
+
 }
