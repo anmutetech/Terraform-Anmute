@@ -5,7 +5,7 @@ variable "instance_type" {
 default = "t2.micro"
 }
 variable "instance_key" {
-default = "my-first-server"
+default = "my-anmute-server"
 }
 variable "vpc_cidr" {
 default = "178.0.0.0/16"
