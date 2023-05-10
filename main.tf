@@ -94,7 +94,7 @@ resource "local_file" "private_key" {
   file_permission = 0400
 }
 
-resource "local_file" "private_key" {
+resource "local_file" "public_key" {
   depends_on = [
     aws_key_pair.generated_key
     ]
