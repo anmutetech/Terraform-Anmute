@@ -110,15 +110,6 @@ resource "aws_instance" "web" {
   subnet_id              = aws_subnet.public_subnet.id
   security_groups = [aws_security_group.sg.id]
   
-  user_data = <<-EOF
-  #!/bin/bash
-  echo "*** Installing ansible"
-  sudo apt update -y
-  sudo apt install software-properties-common
-  sudo add-apt-repository --yes --update ppa:ansible/ansible
-  sudo apt install ansible
-  EOF
-  
   tags = {
     Name = "web_instance"
   }
@@ -129,7 +120,14 @@ resource "aws_instance" "web" {
   
   provisioner "remote-exec" {
     inline = [
-      "echo 'Wait until SSH is ready'"]
+      "sudo apt update -y",
+      "sudo apt install software-properties-common",
+      "sudo add-apt-repository --yes --update ppa:ansible/ansible",
+      "sudo apt install ansible -y",
+      "sleep 30",
+      "sudo apt install telnet",
+      "echo 'Ready to proceed with ansible installations'",
+	]
 
    connection {
    host     = self.public_ip
@@ -140,7 +138,7 @@ resource "aws_instance" "web" {
   }
 
   provisioner "local-exec" {
-    command = "ansible-playbook  -i ${aws_instance.web.public_ip}, --private-key ${tls_private_key.key_type.private_key_pem} nginx.yaml"
+    command = "ansible-playbook  -i ${aws_instance.web.public_ip}, --private-key ${local_file.private_key.filename} nginx.yaml"
   }
 
 }
